@@ -1,9 +1,11 @@
 from flask import Flask, render_template_string, request, redirect, url_for, session
 import random
 import string
+import os
 
 app = Flask(__name__)
-app.secret_key = "super_secret_splashin_key"
+# Secret key depuis variable d'environnement pour Render
+app.secret_key = os.environ.get("SECRET_KEY", "default_secret_splashin")
 
 rooms = {}
 
@@ -221,4 +223,5 @@ def reset_game(room_code):
     return redirect(url_for('waiting_room', room_code=room_code))
 
 if __name__=="__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
