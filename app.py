@@ -204,6 +204,6 @@ def show_target(room_code):
     <a href='{url_for('choose_player', room_code=room_code)}'>⬅️ Retour</a>
     """
     return render_template_string(BASE_HTML.format(content=content))
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
