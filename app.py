@@ -123,7 +123,15 @@ def home():
 @app.route("/create", methods=["POST"])
 def create_room():
     code = generate_code()
-    rooms[code] = {"players": [], "targets": {}, "current_index": 0, "master_option": False, "creator": None, "mode": "unique", "manual": False}
+    rooms[code] = {
+        "players": [],
+        "targets": {},
+        "current_index": 0,
+        "master_option": False,
+        "creator": "",  # vide au départ
+        "mode": "unique",
+        "manual": False
+    }
     session['room_code'] = code
     return redirect(url_for('setup_room', room_code=code))
 
@@ -139,16 +147,18 @@ def join_room():
 def setup_room(room_code):
     room = rooms[room_code]
     players = room['players']
+    is_creator = False
     if request.method=="POST":
         name = request.form['player_name'].strip()
         if name not in players:
             players.append(name)
-        if room['creator'] is None:
+        if room['creator'] == "":
             room['creator'] = name
+            is_creator = True
             room['master_option'] = "master_option" in request.form
         session['name'] = name
         return redirect(url_for('waiting_room', room_code=room_code))
-    is_creator = room['creator'] is None
+    is_creator = (room['creator'] == "")
     return render_template_string(html_template, step="setup", room_code=room_code, players=players, is_creator=is_creator)
 
 @app.route("/waiting/<room_code>", methods=["GET","POST"])
@@ -165,7 +175,6 @@ def start_game(room_code):
     room['manual'] = "manual_targets" in request.form
     if room['manual']:
         return render_template_string(html_template, step="manual_targets", room_code=room_code, players=room['players'])
-    # distribution automatique
     names = room['players'][:]
     shuffled = names[:]
     random.shuffle(shuffled)
